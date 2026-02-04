@@ -9,20 +9,42 @@ import sys
 import termcolor
 from collections import namedtuple
 
-VERSION = "0.0.1"
+VERSION = "0.1.0"
 
 
 def main():
+
+    name = termcolor.colored("clrz", "cyan", attrs=["bold"])
+    ver = termcolor.colored(f"{VERSION}", "yellow", attrs=["bold"])
+
+    # check for flags
+    if "-v" in sys.argv or "--version" in sys.argv:
+        print(f"{name} v{ver}")
+        sys.exit(0)
+
+    if "-h" in sys.argv or "--help" in sys.argv:
+        print(f"{name} v{ver} - colorize stdin based on keywords\n")
+        print("\nUsage: clrz [options]\n")
+        print("Options:")
+        print("  -h, --help       Show this help message and exit")
+        print("  -v, --version    Show version information and exit")
+        print("\nExample:")
+        print(f"  go test -v ./... | {name}")
+        sys.exit(0)
+
     try:
         run()
     except KeyboardInterrupt:
-        print("Process interrupted by user.", file=sys.stderr)
+        print(termcolor.colored("Process interrupted by user.", "red"),
+              file=sys.stderr)
         sys.exit(1)
     except BrokenPipeError:
-        print("Broken pipe error.", file=sys.stderr)
+        print(termcolor.colored("Broken pipe error.", "red"),
+              file=sys.stderr)
         sys.exit(1)
     except Exception as e:
-        print(f"Unexpected error: {e}", file=sys.stderr)
+        print(termcolor.colored(f"Unexpected error: {e}", "red"),
+              file=sys.stderr)
         sys.exit(1)
 
 
@@ -37,7 +59,7 @@ def run():
         "run":      Category(["RUN", "Executing", "EXECUTING"], "blue"),
         "error":    Category(["ERROR", "Error", "ERRORS", "Errors"], "red"),
         "warning":  Category(["WARN", "Warning", "WARNING"], "yellow"),
-        "info":     Category(["INFO", "Information", "INFORMATION"], "blue"),
+        "info":     Category(["INFO", "Info", "INFORMATION"], "blue"),
         "debug":    Category(["Debug", "DEBUG"], "magenta"),
         "trace":    Category(["Trace", "TRACE"], "cyan"),
         "critical": Category(["Critical", "CRITICAL"], "red"),
