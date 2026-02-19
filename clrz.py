@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
 
-# This script takes stdin and outputs to stdout colorizing the lines
+# This script wraps around a cli command and colorizes its output
 # based on the presence of certain keywords.
 
 # Main goal was to colorize Go test outputs.
 
 import sys
+import subprocess
 import termcolor
 from collections import namedtuple
 
-VERSION = "0.1.1"
+VERSION = "0.2.0"
+
+
+def err(msg):
+    print(termcolor.colored(msg, "red"), file=sys.stderr)
 
 
 def main():
@@ -18,22 +23,28 @@ def main():
     ver = termcolor.colored(f"{VERSION}", "yellow", attrs=["bold"])
 
     # check for flags
-    if "-v" in sys.argv or "--version" in sys.argv:
+    if sys.argv[1] == "-v" or sys.argv[1] == "--version":
         print(f"{name} v{ver}")
         sys.exit(0)
 
-    if "-h" in sys.argv or "--help" in sys.argv:
+    if sys.argv[1] == "-h" or sys.argv[1] == "--help":
         print(f"{name} v{ver} - colorize stdin based on keywords\n")
-        print("\nUsage: clrz [options]\n")
+        print("\nUsage: clrz [options] <command>\n")
         print("Options:")
         print("  -h, --help       Show this help message and exit")
         print("  -v, --version    Show version information and exit")
         print("\nExample:")
-        print(f"  go test -v ./... | {name}")
+        print(f"  {name} go test -v ./...")
         sys.exit(0)
 
+    if len(sys.argv) < 2:
+        err("No command provided. Use -h for help.")
+        sys.exit(1)
+
+    cmd = sys.argv[1:]
+
     try:
-        run()
+        run(cmd)
     except KeyboardInterrupt:
         print(termcolor.colored("Process interrupted by user.", "red"),
               file=sys.stderr)
@@ -48,7 +59,7 @@ def main():
         sys.exit(1)
 
 
-def run():
+def run(cmd):
 
     Category = namedtuple("Category", ["keywords", "color"])
 
@@ -66,7 +77,15 @@ def run():
         "success":  Category(["Success", "SUCCESS"], "green"),
         }
 
-    for line in sys.stdin:
+    process = subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1
+    )
+
+    for line in process.stdout:
 
         color = None
 

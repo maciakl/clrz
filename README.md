@@ -4,10 +4,12 @@ Colorize standard output for better readability.
 
 ## Usage
 
-To use this tool, simply pipe the output of another command into it:
+To use this tool, simply preface another command with `clrz`. 
+
+For example, to colorize the output of `go test`: 
 
 ```bash
-go test -v | clrz
+clrz go test -v
 ```
 
 ## Installation
