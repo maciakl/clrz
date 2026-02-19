@@ -10,7 +10,7 @@ import subprocess
 import termcolor
 from collections import namedtuple
 
-VERSION = "0.2.0"
+VERSION = "0.2.1"
 
 
 def err(msg):
@@ -18,6 +18,10 @@ def err(msg):
 
 
 def main():
+
+    if len(sys.argv) < 2:
+        err("No command provided. Use -h for help.")
+        sys.exit(1)
 
     name = termcolor.colored("clrz", "cyan", attrs=["bold"])
     ver = termcolor.colored(f"{VERSION}", "yellow", attrs=["bold"])
@@ -36,10 +40,6 @@ def main():
         print("\nExample:")
         print(f"  {name} go test -v ./...")
         sys.exit(0)
-
-    if len(sys.argv) < 2:
-        err("No command provided. Use -h for help.")
-        sys.exit(1)
 
     cmd = sys.argv[1:]
 
